@@ -1,9 +1,16 @@
 import express from "express";
+import router from "./routes/urlRoutes";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 
-app.get("/", (req, res) => {
-  return res.send("Hello World");
+app.use(express.json());
+
+app.use(router);
+
+app.get("/health", (_, res) => {
+  return res.send("Server is up");
 });
 
 app.listen(3000, () => {
