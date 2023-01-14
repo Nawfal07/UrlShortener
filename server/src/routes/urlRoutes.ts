@@ -1,11 +1,14 @@
+import mongoose, { Model } from "mongoose";
 import express from "express";
 import { body } from "express-validator";
 import { nanoid } from "nanoid";
 import validateRequest from "../utils/body-validation";
+import urlModel from "../database/url.model";
+import urlSchema from "../database/url.model";
 
 const router = express.Router();
 
-router.post("/shorten", body("originalURL").isURL(), (req, res) => {
+router.post("/shorten", body("originalURL").isURL(), async (req, res) => {
   validateRequest(req, res);
   const { originalURL } = req.body;
 
@@ -14,11 +17,20 @@ router.post("/shorten", body("originalURL").isURL(), (req, res) => {
 
   const shortUrl = `${base}/${shortUrlId}`;
 
-  const result = {
-    originalURL,
+  const Model = mongoose.model("URL", urlSchema);
+  const doc = new Model({
+    originalUrl: originalURL,
     shortUrl,
-  };
-  return res.status(201).send(result);
+    shortUrlId,
+  });
+  try {
+    const result = await doc.save();
+    return res.status(201).send(result);
+  } catch (e) {
+    return res.status(400).json({
+      error: e,
+    });
+  }
 });
 
 router.get("/:url", (req, res) => {
