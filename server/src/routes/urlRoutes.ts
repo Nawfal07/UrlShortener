@@ -15,8 +15,9 @@ router.post("/shorten", body("originalURL").isURL(), async (req, res) => {
 
   const shortUrlId = nanoid(10);
   const base = process.env.BASE_URL;
+  const port = process.env.PORT;
 
-  const shortUrl = `${base}/${shortUrlId}`;
+  const shortUrl = `${base}:${port}/${shortUrlId}`;
 
   const doc = new UrlModel({
     originalUrl: originalURL,
