@@ -17,7 +17,12 @@ router.post("/shorten", body("originalURL").isURL(), async (req, res) => {
   const base = process.env.BASE_URL;
   const port = process.env.PORT;
 
-  const shortUrl = `${base}:${port}/${shortUrlId}`;
+  let shortUrl;
+  if (process.env.NODE_ENV === "production") {
+    shortUrl = `${base}/${shortUrlId}`;
+  } else {
+    shortUrl = `${base}:${port}/${shortUrlId}`;
+  }
 
   const doc = new UrlModel({
     originalUrl: originalURL,
@@ -40,13 +45,12 @@ router.get("/:url", async (req, res) => {
     const result = await UrlModel.findOne({ shortUrlId: url });
     if (result) {
       return res.status(200).json({ data: result.originalUrl });
-    } else {
-      return res.status(404).json({ error: "Link not found !!" });
     }
+    return res.status(404).json({ error: "Link not found !!" });
   } catch (err) {
     console.error("error", err);
+    return res.status(400).json({ error: err });
   }
-  return res.status(404).send("Not found");
 });
 
 export default router;
