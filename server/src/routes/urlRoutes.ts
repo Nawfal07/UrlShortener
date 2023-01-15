@@ -1,12 +1,13 @@
-import mongoose, { Model } from "mongoose";
+import mongoose from "mongoose";
 import express from "express";
 import { body } from "express-validator";
 import { nanoid } from "nanoid";
 import validateRequest from "../utils/body-validation";
-import urlModel from "../database/url.model";
 import urlSchema from "../database/url.model";
 
 const router = express.Router();
+
+const UrlModel = mongoose.model("URL", urlSchema);
 
 router.post("/shorten", body("originalURL").isURL(), async (req, res) => {
   validateRequest(req, res);
@@ -17,15 +18,14 @@ router.post("/shorten", body("originalURL").isURL(), async (req, res) => {
 
   const shortUrl = `${base}/${shortUrlId}`;
 
-  const Model = mongoose.model("URL", urlSchema);
-  const doc = new Model({
+  const doc = new UrlModel({
     originalUrl: originalURL,
     shortUrl,
     shortUrlId,
   });
   try {
-    const result = await doc.save();
-    return res.status(201).send(result);
+    await doc.save();
+    return res.status(201).send({ shortUrl });
   } catch (e) {
     return res.status(400).json({
       error: e,
@@ -33,10 +33,15 @@ router.post("/shorten", body("originalURL").isURL(), async (req, res) => {
   }
 });
 
-router.get("/:url", (req, res) => {
+router.get("/:url", async (req, res) => {
   try {
     const { url } = req.params;
-    return res.redirect("https://google.com");
+    const result = await UrlModel.findOne({ shortUrlId: url });
+    if (result) {
+      return res.status(200).json({ data: result.originalUrl });
+    } else {
+      return res.status(404).json({ error: "Link not found !!" });
+    }
   } catch (err) {
     console.error("error", err);
   }
