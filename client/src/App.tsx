@@ -1,25 +1,68 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import { Layout, Input, Button, Descriptions } from "antd";
+import "antd/dist/reset.css";
+import "./App.css";
+import axios from "axios";
+
+const { Header, Footer, Content } = Layout;
 
 function App() {
+  const [input, setInput] = useState("");
+  const [shortURL, setShortURL] = useState(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleClick = async () => {
+    try {
+      const result = await axios.post("/shorten", {
+        originalURL: input,
+      });
+      if (result && result.data) {
+        setShortURL(result.data.shortUrl);
+        console.log(result.data.shortUrl);
+      }
+    } catch (error) {
+      alert(error);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Layout>
+        <Header>
+          <div className="logo">URL Shortener</div>
+        </Header>
+        <Content className="content">
+          <div className="url-input my-5">
+            <h3>URL to shorten</h3>
+            <Input
+              type="url"
+              placeholder="Enter your url"
+              value={input}
+              onChange={handleChange}
+              size="large"
+            ></Input>
+            <Button
+              className="my-3 center"
+              type="primary"
+              size="large"
+              onClick={handleClick}
+            >
+              Generate short link
+            </Button>
+
+            {shortURL && (
+              <div>
+                <h5>Your short URL</h5> <a href={shortURL}>{shortURL}</a>
+              </div>
+            )}
+          </div>
+        </Content>
+        <Footer>Footer</Footer>
+      </Layout>
+    </>
   );
 }
 
