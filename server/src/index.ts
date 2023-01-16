@@ -11,7 +11,7 @@ connectDB();
 
 app.use(express.json());
 app.use(helmet());
-app.use(router);
+app.use("/shorten", router);
 
 app.get("/health", (_, res) => {
   return res.send("Server is up");
