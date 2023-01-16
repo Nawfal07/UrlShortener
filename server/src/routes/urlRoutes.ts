@@ -9,6 +9,19 @@ const router = express.Router();
 
 const UrlModel = mongoose.model("URL", urlSchema);
 
+router.get("/", async (req, res) => {
+  try {
+    const { url } = req.query;
+    const result = await UrlModel.findOne({ shortUrlId: url });
+    if (result) {
+      return res.status(200).json({ data: result.originalUrl });
+    }
+    return res.status(404).json({ error: "Link not found !!" });
+  } catch (err) {
+    return res.status(400).json({ error: err });
+  }
+});
+
 router.post("/", body("originalURL").isURL(), async (req, res) => {
   validateRequest(req, res);
   const { originalURL } = req.body;
@@ -19,9 +32,9 @@ router.post("/", body("originalURL").isURL(), async (req, res) => {
 
   let shortUrl;
   if (process.env.NODE_ENV === "production") {
-    shortUrl = `${base}/shorten/${shortUrlId}`;
+    shortUrl = `${base}/shorten?url=${shortUrlId}`;
   } else {
-    shortUrl = `${base}:${port}/shorten/${shortUrlId}`;
+    shortUrl = `${base}:${port}/shorten?url=${shortUrlId}`;
   }
 
   const doc = new UrlModel({
@@ -36,20 +49,6 @@ router.post("/", body("originalURL").isURL(), async (req, res) => {
     return res.status(400).json({
       error: e,
     });
-  }
-});
-
-router.get("/:url", async (req, res) => {
-  try {
-    const { url } = req.params;
-    const result = await UrlModel.findOne({ shortUrlId: url });
-    if (result) {
-      return res.status(200).json({ data: result.originalUrl });
-    }
-    return res.status(404).json({ error: "Link not found !!" });
-  } catch (err) {
-    console.error("error", err);
-    return res.status(400).json({ error: err });
   }
 });
 
