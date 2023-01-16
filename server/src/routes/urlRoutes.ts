@@ -9,7 +9,7 @@ const router = express.Router();
 
 const UrlModel = mongoose.model("URL", urlSchema);
 
-router.post("/shorten", body("originalURL").isURL(), async (req, res) => {
+router.post("/", body("originalURL").isURL(), async (req, res) => {
   validateRequest(req, res);
   const { originalURL } = req.body;
 
@@ -19,9 +19,9 @@ router.post("/shorten", body("originalURL").isURL(), async (req, res) => {
 
   let shortUrl;
   if (process.env.NODE_ENV === "production") {
-    shortUrl = `${base}/${shortUrlId}`;
+    shortUrl = `${base}/shorten/${shortUrlId}`;
   } else {
-    shortUrl = `${base}:${port}/${shortUrlId}`;
+    shortUrl = `${base}:${port}/shorten/${shortUrlId}`;
   }
 
   const doc = new UrlModel({
