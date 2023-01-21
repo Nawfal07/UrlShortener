@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import helmet from "helmet";
+import cors from "cors";
 import connectDB from "./database/db";
 import router from "./routes/urlRoutes";
 dotenv.config();
@@ -10,6 +11,8 @@ const app = express();
 connectDB();
 
 app.use(express.json());
+// app.options("*", cors()); // include before other routes
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use("/shorten", router);

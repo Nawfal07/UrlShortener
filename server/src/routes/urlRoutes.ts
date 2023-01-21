@@ -4,6 +4,7 @@ import { body } from "express-validator";
 import { nanoid } from "nanoid";
 import validateRequest from "../utils/body-validation";
 import urlSchema from "../database/url.model";
+import cors from "cors";
 
 const router = express.Router();
 
