@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start:dev": "npx nodemon",
-    "prebuild": "npm install typescript",
+    "prebuild": "npm install typescript && (cd ../client && npm run build)",
     "build": "npx rimraf ./build && npx tsc",
     "start": "node build/index.js",
     "lint": "eslint . --ext .ts"
